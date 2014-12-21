@@ -1,5 +1,5 @@
 require "test/unit"
-require "../src/parser"
+require_relative "../src/parser"
 
 class ParserTest < Test::Unit::TestCase
 

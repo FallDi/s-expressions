@@ -1,5 +1,5 @@
 require 'test/unit'
-require "../src/schema"
+require_relative "../src/schema"
 
 class SchemaTest < Test::Unit::TestCase
 

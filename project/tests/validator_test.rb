@@ -1,5 +1,5 @@
 require "test/unit"
-require "../src/validator"
+require_relative "../src/validator"
 
 class ValidatorTest < Test::Unit::TestCase
 

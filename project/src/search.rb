@@ -121,7 +121,11 @@ class Element
     if node[:parent]!=nil
       compare_nodes(node[:parent], esa, index+1)
     else
-      return false
+      if index==esa.length-1
+        return true
+      else
+        return false
+      end
     end
     return true
   end

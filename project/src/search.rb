@@ -1,37 +1,152 @@
 class Element
+  @absolute
+
   def search(string)
+    if string[0] == '/'[0]
+      @absolute = true
+    else
+      @absolute = false
+    end
     queue = []
     root = make_bi_tree(nil, self)
     esa =extract_search_atoms(string)
     queue.push(root)
     until (queue.empty?)
-    current = queue.shift
-    #some magic
-    if current[:childs]
-    then
-      current[:childs].each { |x| queue.push(x) }
+      current = queue.shift
+      #compare
+      result = compare_nodes(current, esa)
+      #print results
+      if result
+        print_hash(current)
+=begin
+        path = ""
+        curr = current
+        begin
+          path.insert(0, '/'+curr[:key])
+          curr = curr[:parent]
+        end while curr != nil
+        puts path
+=end
+      end
+      #add childs to queue
+      if current[:childs]
+        current[:childs].each { |x| queue.push(x) }
+      end
     end
+  end
+
+  def print_hash(hash, depth=0)
+    if hash==nil
+      puts '()'
+      return
     end
+    str_pad = ' ' * depth
+    if hash[:value] == nil
+      print str_pad + '('
+      print hash[:key]
+      puts ' => '
+      if hash[:params] != nil
+        puts ' ' * (depth+2) + '(@ =>'
+        hash[:params].each { |x| print_hash(x, depth+4) }
+        puts ' ' * (depth+2) + ')'
+      end
+      if hash[:childs] != nil
+        hash[:childs].each { |x| print_hash(x, depth+2) }
+      end
+      puts str_pad + ')'
+    else
+      puts str_pad + '(' +(hash[:key] + ' => ') + hash[:value].to_s + ')'
+    end
+  end
+
+  def compare_nodes(node, esa, index=0)
+    #check if we got end of matching string
+    if index>=esa.length
+      if @absolute == true and node[:parent]!=nil
+        return false
+      else
+        return true
+      end
+    end
+
+    #joker check
+    if esa[esa.length-1-index][:key] == '*'
+      current = node
+      result = [false]
+      while current[:parent] != nil
+        result << compare_nodes(current[:parent], esa, index+1)
+        current = current[:parent]
+      end
+      if current[:parent] == nil and index==esa.length-1
+        return true
+      end
+      return result.any?
+    else
+      #base check
+      if esa[esa.length-1-index][:key] != node[:key]
+        return false
+      end
+    end
+
+    #params check
+    if esa[esa.length-1-index][:params] != nil
+      esa[esa.length-1-index][:params].each { |x|
+        key = x[:key]
+        value = x[:value]
+        if value == nil
+          res = node[:value]
+          if node[:value] != key
+            return false
+          end
+        else
+          if node[:params] == nil
+            return false
+          end
+          found=false
+          node[:params].each { |y|
+            if y[:key] == key
+              if y[:value].to_s == value
+                found=true
+              end
+            end
+          }
+          if not found
+            return false
+          end
+        end
+      }
+    end
+
+    #check if we got top of tree
+    if node[:parent]!=nil
+      compare_nodes(node[:parent], esa, index+1)
+    else
+      return false
+    end
+    return true
   end
 
   def make_bi_tree(parent, element)
     params = element.get_params
-    if params then params = params.map { |ele|
-      param = {:key => ele.get_key, :value => ele.get_data}
-      param
-    }
+    if params then
+      params = params.map { |ele|
+        param = {:key => ele.get_key.to_s, :value => ele.get_data}
+        param
+      }
     end
 
     childs = element.get_childs
     value = element.get_value1
     data = {
         :parent => parent,
-        :key => element.get_key,
+        :key => element.get_key.to_s,
         :value => value,
         :params => params,
         :childs => nil
     }
-    if childs then childs = childs.map { |x| make_bi_tree(data, x)} end
+    if childs then
+      childs = childs.map { |x| make_bi_tree(data, x) }
+    end
     data[:childs]=childs
 
     data
@@ -39,7 +154,7 @@ class Element
 
   def extract_search_atoms (string)
     string_literals = []
-    string.gsub(/[\w\[=\]*]+/) { |x| string_literals << x }
+    string.gsub(/[\w\[=\]*"]+/) { |x| string_literals << x }
     string_literals.map { |str|
       tok = str.match(/(\w+|\*)/)
       tok = tok.to_a
@@ -50,6 +165,11 @@ class Element
         param = {:key => paramkey, :value => paramvalue}
         param
       }
+      tok = str.scan(/\[("\w+")\]/)
+      if not tok.empty?
+        param = {:key => tok[0][0], :value => nil}
+        params << param
+      end
       {
           :key => key,
           :params => params
@@ -63,7 +183,9 @@ class Element
       result = result.find_all { |x|
         x.get_key == '@'.to_sym
       }.first
-      if result then result.get_data end
+      if result then
+        result.get_data
+      end
     elsif result.kind_of?(Element)
       return nil if (result.get_key != '@'.to_sym)
       result.get_data

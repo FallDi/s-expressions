@@ -60,9 +60,15 @@ class Element
   def get_value
 	result = @data
 	if result.kind_of?(Array)
-	  result.find_all { |x|
+	  result = result.find_all { |x|
 		x.get_key != :&
 	  }
+	  if result.count == 1
+		result.first
+	  else
+		result
+	  end
+
 	elsif result.kind_of?(Element)
 	  return nil if (result.get_key == :&)
 	  result

@@ -1,7 +1,7 @@
-require "test/unit"
-require_relative "../src/element.rb"
-require_relative "../src/search.rb"
-require_relative "../src/parser"
+require 'test/unit'
+require_relative '../src/element'
+require_relative '../src/search'
+require_relative '../src/parser'
 
 
 class SearchTest  < Test::Unit::TestCase
@@ -28,10 +28,13 @@ class SearchTest  < Test::Unit::TestCase
     root = example1.make_bi_tree(nil, example1)
     esa = example1.extract_search_atoms('/fruits')
     assert_equal(true, example1.compare_nodes(root, esa))
+
     esa = example1.extract_search_atoms('/fruits["hello"]')
     assert_equal(true, example1.compare_nodes(root, esa))
+
     esa = example1.extract_search_atoms('/*')
     assert_equal(true, example1.compare_nodes(root, esa))
+
     esa = example1.extract_search_atoms('fruits')
     assert_equal(true, example1.compare_nodes(root, esa))
   end

@@ -5,7 +5,9 @@ class Parser
 
   REPLACEMENT = '__INTERNAL_STRING_REPLACEMENT__'
 
-
+  # Parse s-expression string into Element class
+  # @param string
+  # @return Element
   def parse (string)
 	string, string_literals = self.extract_string_atoms(string)
 	token_array = tokenize_string(string)
@@ -17,7 +19,9 @@ class Parser
 	transform_to_elements(s_expression)
   end
 
-  # return original string with replaced string atoms, and string atoms
+  # Build original string with replaced string atoms, and string atoms
+  # @param string string
+  # @return array
   def extract_string_atoms (string)
 	string_literals = []
 	string_literal_pattern = /"[^"].*?"/
@@ -32,13 +36,17 @@ class Parser
   end
 
 
-  # add spaces around parentheses
+  # Add spaces around parentheses
+  # @param string string
+  # @return array
   def tokenize_string (string)
 	string = string.gsub('(', ' ( ')
 	string = string.gsub(')', ' ) ')
 	string.split(' ')
   end
 
+  # @param token_array array
+  # @param string_literals array
   def restore_string_literals (token_array, string_literals)
 	token_array.map { |x|
 	  if x == REPLACEMENT
@@ -49,6 +57,7 @@ class Parser
 	}
   end
 
+  # @param token_array array
   def convert_tokens(token_array)
 	converted_tokens = []
 	token_array.each do |t|
@@ -66,6 +75,8 @@ class Parser
 	converted_tokens
   end
 
+  # @param token_array array
+  # @param offset integer
   def re_structure(token_array, offset = 0)
 	struct = []
 	while offset < token_array.length
@@ -84,7 +95,8 @@ class Parser
 	[offset, struct]
   end
 
-
+  # @param elements_array array
+  # @return Element
   def transform_to_elements (elements_array)
 	key = elements_array.first
 	values = elements_array[1..-1]

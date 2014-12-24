@@ -1,3 +1,4 @@
+# Data class for storing data node
 class Element
 
   TYPE_SEQUENCE = :sequence
@@ -9,19 +10,14 @@ class Element
   @key = nil
   @data = nil
 
+  # @param key string
+  # @param data Element|array
   def initialize(key, data)
 	@key = key
 	@data = data
   end
 
-  def get_attributes
-	if @data.is_sequence?
-	  puts @data.first.get_key
-	  return @data.first.get_key == '@'
-	end
-	nil
-  end
-
+  # @return array of schema types
   def get_types
 	result = nil
 	if @data.kind_of?(Array)
@@ -37,6 +33,7 @@ class Element
 	end
   end
 
+  # @return symbol datatype of this element
   def get_type
 	if @data.kind_of?(Array)
 	  TYPE_SEQUENCE
@@ -53,10 +50,12 @@ class Element
 	end
   end
 
+  # @return string
   def get_key
 	@key
   end
 
+  # @return Element|array
   def get_value
 	result = @data
 	if result.kind_of?(Array)
@@ -77,21 +76,29 @@ class Element
 	end
   end
 
+  # Check that element is empty
+  # @return boolean
   def is_empty?
 	return true if (@key == nil)
 	false
   end
 
+  # Check that element is atom
+  # @return boolean
   def is_atom?
 	return true if (@data.kind_of?(Element))
 	false
   end
 
+  # Check that element is sequence
+  # @return boolean
   def is_sequence?
 	return true if (@data.kind_of?(Array))
 	false
   end
 
+  # Convert Element class to s-expression string
+  # @param depth integer
   def convert_to_s_expression(depth = 0)
 	if depth == 0 && self.is_empty?
 	  puts '()'
@@ -117,7 +124,7 @@ class Element
   end
 
 
-  # debug methods
+  # @note debug methods
   def inspect
 	'{' + @key.to_s + ' => ' + @data.inspect + '}'
   end

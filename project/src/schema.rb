@@ -1,20 +1,26 @@
 require_relative 'element'
 require_relative 'parser'
 
+# Exception that indicate element type mismatch
 class IncorrectTypeException < Exception
 end
 
+# Exception that indicate element name mismatch
 class IncorrectNameException < Exception
 end
 
+# Class for validate element schema
 class Schema
 
   @schema = nil
 
+  # @param schema Element
   def initialize(schema)
 	@schema = schema
   end
 
+  # @param document Element
+  # @return boolean
   def validate(document)
 	schema = @schema
 	while !schema.nil? do
@@ -39,6 +45,8 @@ class Schema
 
   private
 
+  # @param types array
+  # @param element Element
   def check_types(types, element)
 	types.each { |x|
 	  #puts "Element " + x.inspect
